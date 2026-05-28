@@ -11,27 +11,38 @@
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
-  <main class="app-shell">
+  <main class="app-shell" id="inicio">
     <section class="hero">
       <div class="top-row">
         <div class="brand-badge">🧭 Te Levo.AI</div>
-        <span class="version-pill">V3</span>
+        <span class="version-pill">V3.1</span>
       </div>
-      <h1>Do roteiro à estrada, a IA vai com você.</h1>
-      <p>Planeje sua viagem com IA, estime custos, salve roteiros, compartilhe no WhatsApp e encontre paradas pelo caminho.</p>
+      <h1>Para onde vamos?</h1>
+      <p><strong>Do roteiro à estrada, a IA vai com você.</strong><br>Planeje, estime custos, salve roteiros, compartilhe no WhatsApp e encontre paradas pelo caminho.</p>
+      <div class="journey-choice">
+        <a class="choice-card" href="#planejar">
+          <span>🧭</span>
+          <strong>Quero planejar</strong>
+          <small>Roteiro, custos, checklist e paradas.</small>
+        </a>
+        <a class="choice-card" href="#estrada">
+          <span>⚡</span>
+          <strong>Já estou na estrada</strong>
+          <small>Posto, comida, descanso e ajuda rápida.</small>
+        </a>
+      </div>
       <div class="hero-actions">
-        <a class="ghost-link" href="#travelForm">Planejar agora</a>
-        <button class="ghost-button" id="loadLastBtn" type="button">📌 Ver último roteiro</button>
+        <button class="ghost-button" id="loadLastBtn" type="button">📌 Último roteiro</button>
         <button class="ghost-button" id="showHistoryBtn" type="button">🗂️ Histórico</button>
       </div>
     </section>
 
-    <section class="panel planner-card">
+    <section class="panel planner-card" id="planejar">
       <div class="section-title">
         <span>🚗</span>
         <div>
           <h2>Planejar viagem</h2>
-          <p>Preencha o básico. Os campos de custos são opcionais, mas ajudam bastante.</p>
+          <p>Comece pelo essencial. O resto fica recolhido para não poluir a tela.</p>
         </div>
       </div>
 
@@ -65,93 +76,102 @@
           </label>
 
           <label>
-            Transporte
-            <select id="transporte" name="transporte">
-              <option value="carro">Carro</option>
-              <option value="moto">Moto</option>
-              <option value="onibus">Ônibus</option>
-              <option value="aviao">Avião</option>
+            Estilo da viagem
+            <select id="estilo" name="estilo">
+              <option value="economica">Econômica</option>
+              <option value="familia">Família</option>
+              <option value="casal">Casal</option>
+              <option value="confortavel">Confortável</option>
+              <option value="aventura">Aventura</option>
+              <option value="equilibrada" selected>Equilibrada</option>
             </select>
           </label>
         </div>
 
         <label>
-          Estilo da viagem
-          <select id="estilo" name="estilo">
-            <option value="economica">Econômica</option>
-            <option value="familia">Família</option>
-            <option value="casal">Casal</option>
-            <option value="confortavel">Confortável</option>
-            <option value="aventura">Aventura</option>
-            <option value="equilibrada" selected>Equilibrada</option>
+          Transporte
+          <select id="transporte" name="transporte">
+            <option value="carro">Carro</option>
+            <option value="moto">Moto</option>
+            <option value="onibus">Ônibus</option>
+            <option value="aviao">Avião</option>
           </select>
         </label>
 
-        <div class="mode-box">
-          <div class="mini-title">🧠 Modos inteligentes</div>
-          <label class="check-pill"><input type="checkbox" name="extras" value="modo família" /> Modo família</label>
-          <label class="check-pill"><input type="checkbox" name="extras" value="modo economia" /> Modo economia</label>
-          <label class="check-pill"><input type="checkbox" name="extras" value="evitar dirigir à noite" /> Evitar dirigir à noite</label>
-          <label class="check-pill"><input type="checkbox" name="extras" value="pausas a cada 2 horas" /> Pausas a cada 2h</label>
-        </div>
+        <details class="advanced-box">
+          <summary>🧠 Preferências inteligentes</summary>
+          <div class="mode-box">
+            <label class="check-pill"><input type="checkbox" name="extras" value="modo família" /> Modo família</label>
+            <label class="check-pill"><input type="checkbox" name="extras" value="modo economia" /> Modo economia</label>
+            <label class="check-pill"><input type="checkbox" name="extras" value="evitar dirigir à noite" /> Evitar dirigir à noite</label>
+            <label class="check-pill"><input type="checkbox" name="extras" value="pausas a cada 2 horas" /> Pausas a cada 2h</label>
+          </div>
+        </details>
 
-        <div class="cost-box">
-          <div class="mini-title">💰 Estimativa rápida de custos</div>
-          <div class="grid-2">
+        <details class="advanced-box">
+          <summary>💰 Estimativa rápida de custos</summary>
+          <div class="cost-box">
+            <div class="grid-2">
+              <label>
+                Distância aproximada ida e volta, km
+                <input id="distanciaKm" name="distanciaKm" inputmode="decimal" placeholder="Ex: 480" />
+              </label>
+              <label>
+                Consumo médio, km/l
+                <input id="consumoKmL" name="consumoKmL" inputmode="decimal" placeholder="Ex: 11,5" />
+              </label>
+            </div>
+            <div class="grid-2">
+              <label>
+                Preço combustível
+                <input id="precoCombustivel" name="precoCombustivel" inputmode="decimal" placeholder="Ex: 5,89" />
+              </label>
+              <label>
+                Pedágio estimado
+                <input id="pedagioEstimado" name="pedagioEstimado" inputmode="decimal" placeholder="Ex: 80" />
+              </label>
+            </div>
+          </div>
+        </details>
+
+        <details class="advanced-box">
+          <summary>✍️ Ajustes e observações</summary>
+          <div class="details-grid">
             <label>
-              Distância aproximada ida e volta, km
-              <input id="distanciaKm" name="distanciaKm" inputmode="decimal" placeholder="Ex: 480" />
+              Orçamento aproximado
+              <input id="orcamento" name="orcamento" placeholder="Ex: até R$ 1.500" />
             </label>
+
             <label>
-              Consumo médio, km/l
-              <input id="consumoKmL" name="consumoKmL" inputmode="decimal" placeholder="Ex: 11,5" />
+              Ajustar roteiro
+              <select id="ajusteRoteiro" name="ajusteRoteiro">
+                <option value="">Sem ajuste especial</option>
+                <option value="quero mais barato">Quero mais barato</option>
+                <option value="quero mais confortável">Quero mais confortável</option>
+                <option value="quero menos paradas">Quero menos paradas</option>
+                <option value="quero mais paradas">Quero mais paradas</option>
+                <option value="quero evitar pedágio">Quero evitar pedágio</option>
+                <option value="vou com criança">Vou com criança</option>
+              </select>
+            </label>
+
+            <label>
+              Preferências
+              <textarea id="preferencias" name="preferencias" rows="3" placeholder="Ex: hotel barato, restaurante familiar, parada a cada 2 horas..."></textarea>
+            </label>
+
+            <label>
+              Observações
+              <textarea id="observacoes" name="observacoes" rows="2" placeholder="Ex: chegar antes das 18h, levar remédios..."></textarea>
             </label>
           </div>
-          <div class="grid-2">
-            <label>
-              Preço combustível
-              <input id="precoCombustivel" name="precoCombustivel" inputmode="decimal" placeholder="Ex: 5,89" />
-            </label>
-            <label>
-              Pedágio estimado
-              <input id="pedagioEstimado" name="pedagioEstimado" inputmode="decimal" placeholder="Ex: 80" />
-            </label>
-          </div>
-        </div>
+        </details>
 
-        <label>
-          Orçamento aproximado
-          <input id="orcamento" name="orcamento" placeholder="Ex: até R$ 1.500" />
-        </label>
-
-        <label>
-          Ajustar roteiro, opcional
-          <select id="ajusteRoteiro" name="ajusteRoteiro">
-            <option value="">Sem ajuste especial</option>
-            <option value="quero mais barato">Quero mais barato</option>
-            <option value="quero mais confortável">Quero mais confortável</option>
-            <option value="quero menos paradas">Quero menos paradas</option>
-            <option value="quero mais paradas">Quero mais paradas</option>
-            <option value="quero evitar pedágio">Quero evitar pedágio</option>
-            <option value="vou com criança">Vou com criança</option>
-          </select>
-        </label>
-
-        <label>
-          Preferências
-          <textarea id="preferencias" name="preferencias" rows="3" placeholder="Ex: hotel barato, restaurante familiar, parada a cada 2 horas, viajar com criança..."></textarea>
-        </label>
-
-        <label>
-          Observações
-          <textarea id="observacoes" name="observacoes" rows="2" placeholder="Ex: evitar pedágio, chegar antes das 18h, levar remédios..."></textarea>
-        </label>
-
-        <button type="submit" id="submitBtn">✨ Gerar meu roteiro V3</button>
+        <button type="submit" id="submitBtn">✨ Gerar meu roteiro</button>
       </form>
     </section>
 
-    <section class="panel radar-card">
+    <section class="panel radar-card" id="radar">
       <div class="section-title">
         <span>📡</span>
         <div>
@@ -169,7 +189,7 @@
       </div>
     </section>
 
-    <section class="road-mode panel">
+    <section class="road-mode panel" id="estrada">
       <div class="section-title">
         <span>⚡</span>
         <div>
@@ -203,7 +223,15 @@
     <section id="result" class="result hidden"></section>
   </main>
 
+  <nav class="bottom-nav" aria-label="Navegação principal">
+    <a href="#inicio">🏠<span>Início</span></a>
+    <a href="#planejar">🧭<span>Planejar</span></a>
+    <a href="#radar">📡<span>Radar</span></a>
+    <a href="#estrada">⚡<span>Estrada</span></a>
+    <button id="bottomHistoryBtn" type="button">🗂️<span>Histórico</span></button>
+  </nav>
+
   <div id="toast" class="toast hidden">Copiado!</div>
-  <script src="/script.js?v=3"></script>
+  <script src="/script.js?v=31"></script>
 </body>
 </html>
