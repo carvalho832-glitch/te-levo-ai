@@ -3,7 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { GoogleGenAI } from "@google/genai";
 
-// Te Levo.AI - Backend V3
+// Te Levo.AI - Backend V3.1
 // Do roteiro à estrada, a IA vai com você.
 
 dotenv.config();
@@ -196,7 +196,7 @@ function planoDemo(dados = {}) {
 app.get("/api/status", (req, res) => {
   res.json({
     app: "Te Levo.AI",
-    versao: "3.0.0",
+    versao: "3.1.0",
     slogan: "Do roteiro à estrada, a IA vai com você.",
     iaAtiva: Boolean(ai)
   });
@@ -268,5 +268,5 @@ app.post("/api/modo-estrada", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Te Levo.AI V3 rodando na porta ${PORT}`);
+  console.log(`Te Levo.AI V3.1 rodando na porta ${PORT}`);
 });
