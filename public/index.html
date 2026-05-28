@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f766e" />
+  <meta name="description" content="Te Levo.AI - planejamento de viagens com IA, rotas, paradas, hotéis, restaurantes e postos." />
+  <title>Te Levo.AI</title>
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" href="/icons/icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <section class="hero">
+      <div class="brand-badge">🧭 Te Levo.AI</div>
+      <h1>Do roteiro à estrada, a IA vai com você.</h1>
+      <p>Planeje sua viagem, encontre paradas inteligentes e receba sugestões de hospedagem, comida, postos e descanso.</p>
+    </section>
+
+    <section class="panel planner-card">
+      <div class="section-title">
+        <span>🚗</span>
+        <div>
+          <h2>Planejar viagem</h2>
+          <p>Preencha o básico e deixe a copilota montar o primeiro roteiro.</p>
+        </div>
+      </div>
+
+      <form id="travelForm" class="travel-form">
+        <label>
+          Origem
+          <input id="origem" name="origem" placeholder="Ex: Sorocaba, SP" required />
+        </label>
+
+        <label>
+          Destino
+          <input id="destino" name="destino" placeholder="Ex: Ubatuba, SP" required />
+        </label>
+
+        <div class="grid-2">
+          <label>
+            Data
+            <input id="data" name="data" type="date" />
+          </label>
+
+          <label>
+            Horário de saída
+            <input id="horario" name="horario" type="time" />
+          </label>
+        </div>
+
+        <div class="grid-2">
+          <label>
+            Pessoas
+            <input id="pessoas" name="pessoas" type="number" min="1" placeholder="Ex: 3" />
+          </label>
+
+          <label>
+            Transporte
+            <select id="transporte" name="transporte">
+              <option value="carro">Carro</option>
+              <option value="moto">Moto</option>
+              <option value="onibus">Ônibus</option>
+              <option value="aviao">Avião</option>
+            </select>
+          </label>
+        </div>
+
+        <label>
+          Estilo da viagem
+          <select id="estilo" name="estilo">
+            <option value="economica">Econômica</option>
+            <option value="familia">Família</option>
+            <option value="casal">Casal</option>
+            <option value="confortavel">Confortável</option>
+            <option value="aventura">Aventura</option>
+            <option value="equilibrada" selected>Equilibrada</option>
+          </select>
+        </label>
+
+        <label>
+          Orçamento aproximado
+          <input id="orcamento" name="orcamento" placeholder="Ex: até R$ 1.500" />
+        </label>
+
+        <label>
+          Preferências
+          <textarea id="preferencias" name="preferencias" rows="3" placeholder="Ex: hotel barato, restaurante familiar, parada a cada 2 horas, viajar com criança..."></textarea>
+        </label>
+
+        <label>
+          Observações
+          <textarea id="observacoes" name="observacoes" rows="2" placeholder="Ex: evitar pedágio, chegar antes das 18h, levar remédios..."></textarea>
+        </label>
+
+        <button type="submit" id="submitBtn">✨ Gerar meu roteiro</button>
+      </form>
+    </section>
+
+    <section class="road-mode panel">
+      <div class="section-title">
+        <span>⚡</span>
+        <div>
+          <h2>Modo estrada</h2>
+          <p>Atalhos para quando a viagem já começou.</p>
+        </div>
+      </div>
+
+      <div class="quick-actions">
+        <button data-need="preciso abastecer">⛽ Preciso abastecer</button>
+        <button data-need="estou com fome">🍽️ Estou com fome</button>
+        <button data-need="quero descansar">🛌 Quero descansar</button>
+        <button data-need="procurar hotel próximo">🏨 Hotel próximo</button>
+        <button data-need="viajo com criança">🧸 Viajo com criança</button>
+        <button data-need="farmácia ou hospital">🧰 Farmácia/Hospital</button>
+      </div>
+      <div id="roadResult" class="road-result hidden"></div>
+    </section>
+
+    <section id="result" class="result hidden"></section>
+  </main>
+
+  <script src="/script.js"></script>
+</body>
+</html>
