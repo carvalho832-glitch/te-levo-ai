@@ -8,9 +8,10 @@ const showHistoryBtn = document.querySelector("#showHistoryBtn");
 const bottomHistoryBtn = document.querySelector("#bottomHistoryBtn");
 const historyPanel = document.querySelector("#historyPanel");
 const historyList = document.querySelector("#historyList");
+const radarBase = document.querySelector("#radarBase");
 
-const STORAGE_KEY = "teLevoAiUltimoRoteiroV31";
-const HISTORY_KEY = "teLevoAiHistoricoV31";
+const STORAGE_KEY = "teLevoAiUltimoRoteiroV32";
+const HISTORY_KEY = "teLevoAiHistoricoV32";
 
 let ultimoPlano = null;
 let ultimosDados = null;
@@ -79,10 +80,28 @@ function abrirGoogleMaps(dados = {}) {
   return `https://www.google.com/maps/dir/?api=1&origin=${origem}&destination=${destino}&travelmode=driving`;
 }
 
+function abrirWaze(dados = {}) {
+  const destino = encodeURIComponent(dados.destino || "");
+  if (!destino) return "#";
+  return `https://waze.com/ul?q=${destino}&navigate=yes`;
+}
+
 function buscaRadar(termo) {
   const dados = getFormData();
-  const base = dados.destino || dados.origem || "minha localização";
-  const query = encodeURIComponent(`${termo} próximo de ${base}`);
+  const baseEscolhida = radarBase?.value || "destino";
+  let queryBase = dados.destino || dados.origem || "minha localização";
+
+  if (baseEscolhida === "origem") {
+    queryBase = dados.origem || dados.destino || "minha localização";
+  }
+
+  if (baseEscolhida === "caminho") {
+    const origem = dados.origem || "origem";
+    const destino = dados.destino || "destino";
+    queryBase = `no caminho de ${origem} para ${destino}`;
+  }
+
+  const query = encodeURIComponent(`${termo} ${queryBase}`);
   window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, "_blank", "noopener");
 }
 
@@ -127,10 +146,22 @@ function carregarHistorico() {
   }
 }
 
+function chaveHistorico(item) {
+  return `${item.dados?.origem || ""}|${item.dados?.destino || ""}|${item.dados?.data || ""}|${item.plano?.resumo || ""}`;
+}
+
 function salvarNoHistorico(item) {
   const historico = carregarHistorico();
-  historico.unshift(item);
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(historico.slice(0, 10)));
+  const chave = chaveHistorico(item);
+  const filtrado = historico.filter((salvo) => chaveHistorico(salvo) !== chave);
+  filtrado.unshift(item);
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(filtrado.slice(0, 10)));
+}
+
+function salvarAutomaticamente(plano, modo, dados) {
+  const item = { plano, modo, dados, salvoEm: new Date().toISOString(), automatico: true };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(item));
+  salvarNoHistorico(item);
 }
 
 function renderHistorico() {
@@ -138,33 +169,45 @@ function renderHistorico() {
   historyPanel.classList.remove("hidden");
 
   if (!historico.length) {
-    historyList.innerHTML = `<div class="history-item"><strong>Nenhum roteiro salvo ainda.</strong><small>Gere um roteiro e toque em Salvar.</small></div>`;
+    historyList.innerHTML = `<div class="history-item"><strong>Nenhum roteiro salvo ainda.</strong><small>Gere um roteiro para salvar automaticamente.</small></div>`;
     historyPanel.scrollIntoView({ behavior: "smooth", block: "start" });
     return;
   }
 
-  historyList.innerHTML = historico.map((item, index) => {
-    const origem = item.dados?.origem || "Origem";
-    const destino = item.dados?.destino || "Destino";
-    const data = item.dados?.data || "sem data";
-    const salvo = item.salvoEm ? new Date(item.salvoEm).toLocaleString("pt-BR") : "salvo recentemente";
-    return `
-      <div class="history-item">
-        <strong>${escapeHtml(origem)} → ${escapeHtml(destino)}</strong>
-        <small>${escapeHtml(data)} • ${escapeHtml(salvo)}</small>
-        <div class="history-actions">
-          <button type="button" data-history-open="${index}">Abrir</button>
-          <button type="button" class="ghost-button" data-history-copy="${index}">Copiar</button>
-          <button type="button" class="ghost-button" data-history-remove="${index}">Apagar</button>
+  historyList.innerHTML = `
+    <div class="history-toolbar">
+      <button type="button" class="ghost-button" id="clearHistoryBtn">🧹 Limpar histórico</button>
+    </div>
+    ${historico.map((item, index) => {
+      const origem = item.dados?.origem || "Origem";
+      const destino = item.dados?.destino || "Destino";
+      const data = item.dados?.data || "sem data";
+      const salvo = item.salvoEm ? new Date(item.salvoEm).toLocaleString("pt-BR") : "salvo recentemente";
+      return `
+        <div class="history-item">
+          <strong>${escapeHtml(origem)} → ${escapeHtml(destino)}</strong>
+          <small>${escapeHtml(data)} • ${escapeHtml(salvo)}</small>
+          <div class="history-actions">
+            <button type="button" data-history-open="${index}">Abrir</button>
+            <button type="button" class="ghost-button" data-history-copy="${index}">Copiar</button>
+            <button type="button" class="ghost-button" data-history-remove="${index}">Apagar</button>
+          </div>
         </div>
-      </div>
-    `;
-  }).join("");
+      `;
+    }).join("")}
+  `;
+
+  historyList.querySelector("#clearHistoryBtn")?.addEventListener("click", () => {
+    localStorage.removeItem(HISTORY_KEY);
+    localStorage.removeItem(STORAGE_KEY);
+    renderHistorico();
+    showToast("Histórico limpo.");
+  });
 
   historyList.querySelectorAll("[data-history-open]").forEach((button) => {
     button.addEventListener("click", () => {
       const item = carregarHistorico()[Number(button.dataset.historyOpen)];
-      if (item) renderPlano(item.plano, item.modo, item.dados);
+      if (item) renderPlano(item.plano, item.modo, item.dados, { autoSave: false });
     });
   });
 
@@ -188,6 +231,7 @@ function renderHistorico() {
   });
 
   historyPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+  marcarNavAtiva("historyPanel");
 }
 
 function montarResumoDados(dados = {}, plano = {}) {
@@ -209,13 +253,18 @@ function montarResumoDados(dados = {}, plano = {}) {
   `;
 }
 
-function renderPlano(plano, modo, dados = {}) {
+function renderPlano(plano, modo, dados = {}, opcoes = { autoSave: true }) {
   result.classList.remove("hidden");
   ultimoPlano = plano;
   ultimosDados = dados;
   ultimoModo = modo;
 
+  if (opcoes.autoSave) {
+    salvarAutomaticamente(plano, modo, dados);
+  }
+
   const mapsUrl = abrirGoogleMaps(dados);
+  const wazeUrl = abrirWaze(dados);
   const whatsUrl = whatsappUrl(plano);
 
   result.innerHTML = `
@@ -225,12 +274,13 @@ function renderPlano(plano, modo, dados = {}) {
       ${montarResumoDados(dados, plano)}
       <div class="result-actions">
         <button type="button" id="copyPlanBtn">📋 Copiar</button>
-        <button type="button" id="savePlanBtn" class="ghost-button">💾 Salvar</button>
+        <button type="button" id="savePlanBtn" class="ghost-button">💾 Salvo</button>
         <button type="button" id="redoPlanBtn" class="ghost-button">🔁 Refazer</button>
-        <a class="ghost-link secondary" href="${mapsUrl}" target="_blank" rel="noopener">🗺️ Rota</a>
+        <a class="ghost-link secondary" href="${mapsUrl}" target="_blank" rel="noopener">🗺️ Maps</a>
+        <a class="ghost-link secondary" href="${wazeUrl}" target="_blank" rel="noopener">🚙 Waze</a>
         <a class="ghost-link secondary" href="${whatsUrl}" target="_blank" rel="noopener">📲 WhatsApp</a>
       </div>
-      <small>${modo === "demo" ? "Modo demo ativo: conecte sua GEMINI_API_KEY para usar IA real." : "Gerado com IA."}</small>
+      <small>${modo === "demo" ? "Modo demo ativo: conecte sua GEMINI_API_KEY para usar IA real." : "Gerado com IA."} Salvo automaticamente no histórico.</small>
     </div>
     ${accordionCard("melhorHorario", titulos.melhorHorario, plano.melhorHorario, true)}
     ${accordionCard("roteiro", titulos.roteiro, plano.roteiro, true)}
@@ -253,9 +303,7 @@ function renderPlano(plano, modo, dados = {}) {
   });
 
   document.querySelector("#savePlanBtn")?.addEventListener("click", () => {
-    const item = { plano, modo, dados, salvoEm: new Date().toISOString() };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(item));
-    salvarNoHistorico(item);
+    salvarAutomaticamente(plano, modo, dados);
     showToast("Roteiro salvo no histórico!");
   });
 
@@ -282,7 +330,8 @@ form.addEventListener("submit", async (event) => {
     });
 
     const data = await response.json();
-    renderPlano(data.plano, data.modo, dados);
+    renderPlano(data.plano, data.modo, dados, { autoSave: true });
+    showToast("Roteiro gerado e salvo!");
   } catch (error) {
     result.classList.remove("hidden");
     result.innerHTML = `
@@ -312,7 +361,7 @@ loadLastBtn.addEventListener("click", () => {
 
   try {
     const salvo = JSON.parse(raw);
-    renderPlano(salvo.plano, salvo.modo, salvo.dados);
+    renderPlano(salvo.plano, salvo.modo, salvo.dados, { autoSave: false });
     showToast("Último roteiro carregado!");
   } catch {
     showToast("Não consegui carregar o roteiro salvo.");
@@ -348,6 +397,28 @@ document.querySelectorAll(".quick-actions button").forEach((button) => {
       roadResult.innerHTML = "Não consegui consultar agora. Pare em local seguro e tente novamente.";
     }
   });
+});
+
+function marcarNavAtiva(targetId) {
+  document.querySelectorAll(".bottom-nav a, .bottom-nav button").forEach((item) => {
+    item.classList.toggle("active", item.dataset.target === targetId);
+  });
+}
+
+const observer = new IntersectionObserver((entries) => {
+  const visivel = entries
+    .filter((entry) => entry.isIntersecting)
+    .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+  if (visivel?.target?.id) {
+    marcarNavAtiva(visivel.target.id);
+  }
+}, { threshold: [0.35, 0.55, 0.75] });
+
+document.querySelectorAll(".section-watch").forEach((section) => observer.observe(section));
+
+document.querySelectorAll(".bottom-nav a").forEach((link) => {
+  link.addEventListener("click", () => marcarNavAtiva(link.dataset.target));
 });
 
 if ("serviceWorker" in navigator) {
