@@ -13,9 +13,16 @@
 <body>
   <main class="app-shell">
     <section class="hero">
-      <div class="brand-badge">🧭 Te Levo.AI</div>
+      <div class="top-row">
+        <div class="brand-badge">🧭 Te Levo.AI</div>
+        <span class="version-pill">V2</span>
+      </div>
       <h1>Do roteiro à estrada, a IA vai com você.</h1>
-      <p>Planeje sua viagem, encontre paradas inteligentes e receba sugestões de hospedagem, comida, postos e descanso.</p>
+      <p>Planeje sua viagem com IA, estime custos, salve o roteiro e use atalhos rápidos quando estiver na estrada.</p>
+      <div class="hero-actions">
+        <a class="ghost-link" href="#travelForm">Planejar agora</a>
+        <button class="ghost-button" id="loadLastBtn" type="button">📌 Ver último roteiro</button>
+      </div>
     </section>
 
     <section class="panel planner-card">
@@ -23,7 +30,7 @@
         <span>🚗</span>
         <div>
           <h2>Planejar viagem</h2>
-          <p>Preencha o básico e deixe a copilota montar o primeiro roteiro.</p>
+          <p>Preencha o básico. Os campos de custos são opcionais, mas ajudam bastante.</p>
         </div>
       </div>
 
@@ -79,6 +86,30 @@
           </select>
         </label>
 
+        <div class="cost-box">
+          <div class="mini-title">💰 Estimativa rápida de custos</div>
+          <div class="grid-2">
+            <label>
+              Distância aproximada ida e volta, km
+              <input id="distanciaKm" name="distanciaKm" inputmode="decimal" placeholder="Ex: 480" />
+            </label>
+            <label>
+              Consumo médio, km/l
+              <input id="consumoKmL" name="consumoKmL" inputmode="decimal" placeholder="Ex: 11,5" />
+            </label>
+          </div>
+          <div class="grid-2">
+            <label>
+              Preço combustível
+              <input id="precoCombustivel" name="precoCombustivel" inputmode="decimal" placeholder="Ex: 5,89" />
+            </label>
+            <label>
+              Pedágio estimado
+              <input id="pedagioEstimado" name="pedagioEstimado" inputmode="decimal" placeholder="Ex: 80" />
+            </label>
+          </div>
+        </div>
+
         <label>
           Orçamento aproximado
           <input id="orcamento" name="orcamento" placeholder="Ex: até R$ 1.500" />
@@ -94,7 +125,7 @@
           <textarea id="observacoes" name="observacoes" rows="2" placeholder="Ex: evitar pedágio, chegar antes das 18h, levar remédios..."></textarea>
         </label>
 
-        <button type="submit" id="submitBtn">✨ Gerar meu roteiro</button>
+        <button type="submit" id="submitBtn">✨ Gerar meu roteiro V2</button>
       </form>
     </section>
 
@@ -121,6 +152,7 @@
     <section id="result" class="result hidden"></section>
   </main>
 
-  <script src="/script.js"></script>
+  <div id="toast" class="toast hidden">Copiado!</div>
+  <script src="/script.js?v=2"></script>
 </body>
 </html>
