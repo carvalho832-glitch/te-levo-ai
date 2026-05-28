@@ -7,11 +7,17 @@
   --primary-dark: #115e59;
   --soft: #d8f7ef;
   --line: #d7ebe6;
+  --warning: #fff7ed;
+  --warning-text: #9a3412;
   --shadow: 0 18px 45px rgba(17, 94, 89, 0.14);
 }
 
 * {
   box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
@@ -31,6 +37,11 @@ textarea {
   font: inherit;
 }
 
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
 .app-shell {
   width: min(1080px, 100%);
   margin: 0 auto;
@@ -41,7 +52,17 @@ textarea {
   padding: 28px 0 18px;
 }
 
-.brand-badge {
+.top-row,
+.hero-actions,
+.result-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.brand-badge,
+.version-pill {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -52,6 +73,12 @@ textarea {
   font-weight: 800;
   border: 1px solid var(--line);
   box-shadow: 0 8px 22px rgba(15, 118, 110, 0.08);
+}
+
+.version-pill {
+  background: var(--primary);
+  color: #fff;
+  border-color: transparent;
 }
 
 .hero h1 {
@@ -70,8 +97,13 @@ textarea {
   line-height: 1.55;
 }
 
+.hero-actions {
+  margin-top: 18px;
+}
+
 .panel,
-.result-card {
+.result-card,
+.accordion-card {
   background: rgba(255, 255, 255, 0.88);
   border: 1px solid rgba(215, 235, 230, 0.9);
   border-radius: 28px;
@@ -154,7 +186,22 @@ textarea:focus {
   box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12);
 }
 
-button {
+.cost-box {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 22px;
+  background: rgba(216, 247, 239, 0.56);
+  border: 1px solid var(--line);
+}
+
+.mini-title {
+  font-weight: 900;
+  color: var(--primary-dark);
+}
+
+button,
+.ghost-link {
   border: 0;
   border-radius: 18px;
   padding: 14px 18px;
@@ -166,13 +213,22 @@ button {
   transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
-button:active {
+button:active,
+.ghost-link:active {
   transform: translateY(1px) scale(0.99);
 }
 
 button:disabled {
   opacity: 0.7;
   cursor: wait;
+}
+
+.ghost-button,
+.ghost-link.secondary {
+  background: #ffffff;
+  color: var(--primary-dark);
+  border: 1px solid var(--line);
+  box-shadow: none;
 }
 
 .quick-actions {
@@ -203,26 +259,6 @@ button:disabled {
   gap: 14px;
 }
 
-.result-card {
-  padding: 20px;
-}
-
-.result-card h3 {
-  margin: 0 0 10px;
-  font-size: 1.1rem;
-}
-
-.result-card p,
-.result-card li {
-  color: #385f59;
-  line-height: 1.5;
-}
-
-.result-card ul {
-  margin: 0;
-  padding-left: 20px;
-}
-
 .result-head {
   background: linear-gradient(135deg, var(--primary), #0ea5a0);
   color: #fff;
@@ -236,13 +272,104 @@ button:disabled {
 }
 
 .result-head p {
-  margin: 0;
+  margin: 0 0 12px;
   opacity: 0.94;
   line-height: 1.5;
 }
 
+.result-head small {
+  display: block;
+  margin-top: 10px;
+  opacity: 0.85;
+}
+
+.result-actions {
+  margin-top: 16px;
+}
+
+.result-actions button,
+.result-actions a {
+  padding: 11px 13px;
+  border-radius: 14px;
+  font-size: 0.92rem;
+}
+
+.accordion-card {
+  overflow: hidden;
+}
+
+.accordion-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--text);
+  box-shadow: none;
+  border-radius: 0;
+  padding: 17px 18px;
+  text-align: left;
+}
+
+.accordion-trigger strong {
+  font-size: 1rem;
+}
+
+.chevron {
+  transition: transform 0.2s ease;
+}
+
+.accordion-card.open .chevron {
+  transform: rotate(180deg);
+}
+
+.accordion-content {
+  display: none;
+  padding: 0 18px 18px;
+}
+
+.accordion-card.open .accordion-content {
+  display: block;
+}
+
+.accordion-content p,
+.accordion-content li {
+  color: #385f59;
+  line-height: 1.5;
+}
+
+.accordion-content ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.alert-card {
+  border-color: #fed7aa;
+  background: var(--warning);
+}
+
+.alert-card .accordion-trigger {
+  background: var(--warning);
+  color: var(--warning-text);
+}
+
 .hidden {
   display: none;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  padding: 12px 16px;
+  border-radius: 999px;
+  background: #102f2b;
+  color: #fff;
+  font-weight: 800;
+  box-shadow: var(--shadow);
+  z-index: 10;
 }
 
 .loading {
