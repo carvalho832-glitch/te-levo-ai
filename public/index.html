@@ -12,10 +12,10 @@
 </head>
 <body>
   <main class="app-shell" id="inicio">
-    <section class="hero">
+    <section class="hero section-watch">
       <div class="top-row">
         <div class="brand-badge">🧭 Te Levo.AI</div>
-        <span class="version-pill">V3.1</span>
+        <span class="version-pill">V3.2</span>
       </div>
       <h1>Para onde vamos?</h1>
       <p><strong>Do roteiro à estrada, a IA vai com você.</strong><br>Planeje, estime custos, salve roteiros, compartilhe no WhatsApp e encontre paradas pelo caminho.</p>
@@ -37,7 +37,7 @@
       </div>
     </section>
 
-    <section class="panel planner-card" id="planejar">
+    <section class="panel planner-card section-watch" id="planejar">
       <div class="section-title">
         <span>🚗</span>
         <div>
@@ -171,14 +171,24 @@
       </form>
     </section>
 
-    <section class="panel radar-card" id="radar">
+    <section class="panel radar-card section-watch" id="radar">
       <div class="section-title">
         <span>📡</span>
         <div>
           <h2>Radar de paradas</h2>
-          <p>Busca rápida no Google Maps usando a origem ou destino preenchidos.</p>
+          <p>Escolha onde quer buscar e abra direto no Google Maps.</p>
         </div>
       </div>
+
+      <label class="radar-select">
+        Buscar paradas
+        <select id="radarBase">
+          <option value="destino">Perto do destino</option>
+          <option value="origem">Perto da origem</option>
+          <option value="caminho">No caminho da viagem</option>
+        </select>
+      </label>
+
       <div class="radar-actions">
         <button type="button" data-radar="posto de gasolina">⛽ Postos</button>
         <button type="button" data-radar="restaurante familiar">🍽️ Restaurantes</button>
@@ -189,7 +199,7 @@
       </div>
     </section>
 
-    <section class="road-mode panel" id="estrada">
+    <section class="road-mode panel section-watch" id="estrada">
       <div class="section-title">
         <span>⚡</span>
         <div>
@@ -209,12 +219,12 @@
       <div id="roadResult" class="road-result hidden"></div>
     </section>
 
-    <section id="historyPanel" class="panel history-panel hidden">
+    <section id="historyPanel" class="panel history-panel hidden section-watch">
       <div class="section-title">
         <span>🗂️</span>
         <div>
           <h2>Histórico de roteiros</h2>
-          <p>Roteiros salvos neste aparelho.</p>
+          <p>Roteiros salvos automaticamente neste aparelho.</p>
         </div>
       </div>
       <div id="historyList" class="history-list"></div>
@@ -224,14 +234,14 @@
   </main>
 
   <nav class="bottom-nav" aria-label="Navegação principal">
-    <a href="#inicio">🏠<span>Início</span></a>
-    <a href="#planejar">🧭<span>Planejar</span></a>
-    <a href="#radar">📡<span>Radar</span></a>
-    <a href="#estrada">⚡<span>Estrada</span></a>
-    <button id="bottomHistoryBtn" type="button">🗂️<span>Histórico</span></button>
+    <a href="#inicio" data-target="inicio" class="active">🏠<span>Início</span></a>
+    <a href="#planejar" data-target="planejar">🧭<span>Planejar</span></a>
+    <a href="#radar" data-target="radar">📡<span>Radar</span></a>
+    <a href="#estrada" data-target="estrada">⚡<span>Estrada</span></a>
+    <button id="bottomHistoryBtn" type="button" data-target="historyPanel">🗂️<span>Histórico</span></button>
   </nav>
 
   <div id="toast" class="toast hidden">Copiado!</div>
-  <script src="/script.js?v=31"></script>
+  <script src="/script.js?v=32"></script>
 </body>
 </html>
