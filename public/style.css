@@ -317,6 +317,10 @@ button:disabled {
   box-shadow: none;
 }
 
+.radar-select {
+  margin-bottom: 12px;
+}
+
 .quick-actions,
 .radar-actions {
   display: grid;
@@ -472,6 +476,11 @@ button:disabled {
   gap: 10px;
 }
 
+.history-toolbar {
+  display: flex;
+  justify-content: flex-end;
+}
+
 .history-item {
   display: grid;
   gap: 8px;
@@ -495,7 +504,8 @@ button:disabled {
   gap: 8px;
 }
 
-.history-actions button {
+.history-actions button,
+.history-toolbar button {
   padding: 9px 12px;
   border-radius: 12px;
   font-size: 0.9rem;
@@ -532,6 +542,12 @@ button:disabled {
   color: var(--primary-dark);
   font-weight: 900;
   font-size: 1.05rem;
+}
+
+.bottom-nav a.active,
+.bottom-nav button.active {
+  background: var(--primary);
+  color: #ffffff;
 }
 
 .bottom-nav span {
