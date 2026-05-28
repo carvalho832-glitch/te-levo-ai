@@ -1,4 +1,4 @@
-const CACHE_NAME = "te-levo-ai-v3";
+const CACHE_NAME = "te-levo-ai-v31";
 const ASSETS = [
   "/",
   "/index.html",
