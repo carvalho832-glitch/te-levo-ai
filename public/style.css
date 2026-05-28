@@ -1,0 +1,287 @@
+:root {
+  --bg: #eefdf9;
+  --card: #ffffff;
+  --text: #12312d;
+  --muted: #5f7772;
+  --primary: #0f766e;
+  --primary-dark: #115e59;
+  --soft: #d8f7ef;
+  --line: #d7ebe6;
+  --shadow: 0 18px 45px rgba(17, 94, 89, 0.14);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at top left, rgba(15, 118, 110, 0.24), transparent 32rem),
+    linear-gradient(135deg, #eefdf9 0%, #f7fffc 48%, #e0f7f1 100%);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+.app-shell {
+  width: min(1080px, 100%);
+  margin: 0 auto;
+  padding: 28px 16px 48px;
+}
+
+.hero {
+  padding: 28px 0 18px;
+}
+
+.brand-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--primary-dark);
+  font-weight: 800;
+  border: 1px solid var(--line);
+  box-shadow: 0 8px 22px rgba(15, 118, 110, 0.08);
+}
+
+.hero h1 {
+  max-width: 760px;
+  margin: 18px 0 10px;
+  font-size: clamp(2.1rem, 7vw, 4.7rem);
+  line-height: 0.95;
+  letter-spacing: -0.07em;
+}
+
+.hero p {
+  max-width: 690px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 1.08rem;
+  line-height: 1.55;
+}
+
+.panel,
+.result-card {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(215, 235, 230, 0.9);
+  border-radius: 28px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+}
+
+.planner-card,
+.road-mode {
+  padding: 22px;
+  margin-top: 18px;
+}
+
+.section-title {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.section-title span {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 16px;
+  background: var(--soft);
+  font-size: 1.3rem;
+}
+
+.section-title h2 {
+  margin: 0 0 4px;
+  font-size: 1.35rem;
+}
+
+.section-title p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.travel-form {
+  display: grid;
+  gap: 14px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+label {
+  display: grid;
+  gap: 7px;
+  color: #254a45;
+  font-weight: 700;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 14px 15px;
+  color: var(--text);
+  background: #fbfffe;
+  outline: none;
+  transition: 0.2s ease;
+}
+
+textarea {
+  resize: vertical;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12);
+}
+
+button {
+  border: 0;
+  border-radius: 18px;
+  padding: 14px 18px;
+  cursor: pointer;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(135deg, var(--primary), #14b8a6);
+  box-shadow: 0 12px 26px rgba(15, 118, 110, 0.22);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+button:active {
+  transform: translateY(1px) scale(0.99);
+}
+
+button:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.quick-actions button {
+  background: #ffffff;
+  color: var(--primary-dark);
+  border: 1px solid var(--line);
+  box-shadow: none;
+  text-align: left;
+}
+
+.road-result {
+  margin-top: 14px;
+  padding: 15px;
+  border-radius: 18px;
+  background: var(--soft);
+  color: var(--primary-dark);
+}
+
+.result {
+  margin-top: 22px;
+  display: grid;
+  gap: 14px;
+}
+
+.result-card {
+  padding: 20px;
+}
+
+.result-card h3 {
+  margin: 0 0 10px;
+  font-size: 1.1rem;
+}
+
+.result-card p,
+.result-card li {
+  color: #385f59;
+  line-height: 1.5;
+}
+
+.result-card ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.result-head {
+  background: linear-gradient(135deg, var(--primary), #0ea5a0);
+  color: #fff;
+  border-radius: 28px;
+  padding: 22px;
+  box-shadow: var(--shadow);
+}
+
+.result-head h2 {
+  margin: 0 0 8px;
+}
+
+.result-head p {
+  margin: 0;
+  opacity: 0.94;
+  line-height: 1.5;
+}
+
+.hidden {
+  display: none;
+}
+
+.loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.loading::after {
+  content: "";
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.5);
+  border-top-color: #fff;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 720px) {
+  .app-shell {
+    padding: 18px 12px 32px;
+  }
+
+  .planner-card,
+  .road-mode {
+    padding: 16px;
+    border-radius: 22px;
+  }
+
+  .grid-2,
+  .quick-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .hero h1 {
+    letter-spacing: -0.055em;
+  }
+}
