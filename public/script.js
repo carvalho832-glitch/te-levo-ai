@@ -4,8 +4,16 @@ const result = document.querySelector("#result");
 const roadResult = document.querySelector("#roadResult");
 const toast = document.querySelector("#toast");
 const loadLastBtn = document.querySelector("#loadLastBtn");
+const showHistoryBtn = document.querySelector("#showHistoryBtn");
+const historyPanel = document.querySelector("#historyPanel");
+const historyList = document.querySelector("#historyList");
 
-const STORAGE_KEY = "teLevoAiUltimoRoteiroV2";
+const STORAGE_KEY = "teLevoAiUltimoRoteiroV3";
+const HISTORY_KEY = "teLevoAiHistoricoV3";
+
+let ultimoPlano = null;
+let ultimosDados = null;
+let ultimoModo = "demo";
 
 const titulos = {
   melhorHorario: "⏰ Melhor horário",
@@ -17,11 +25,14 @@ const titulos = {
   custosEstimados: "💰 Custos estimados",
   checklist: "🧳 Checklist",
   seguranca: "🛡️ Segurança",
-  alertas: "⚠️ Alertas importantes"
+  alertas: "⚠️ Alertas importantes",
+  proximosPassos: "✅ Próximos passos"
 };
 
 function getFormData() {
-  return Object.fromEntries(new FormData(form).entries());
+  const dados = Object.fromEntries(new FormData(form).entries());
+  dados.extras = new FormData(form).getAll("extras");
+  return dados;
 }
 
 function escapeHtml(value = "") {
@@ -67,6 +78,18 @@ function abrirGoogleMaps(dados = {}) {
   return `https://www.google.com/maps/dir/?api=1&origin=${origem}&destination=${destino}&travelmode=driving`;
 }
 
+function buscaRadar(termo) {
+  const dados = getFormData();
+  const base = dados.destino || dados.origem || "minha localização";
+  const query = encodeURIComponent(`${termo} próximo de ${base}`);
+  window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, "_blank", "noopener");
+}
+
+function whatsappUrl(plano = {}) {
+  const texto = encodeURIComponent(planoParaTexto(plano));
+  return `https://wa.me/?text=${texto}`;
+}
+
 function accordionCard(chave, titulo, dados, aberto = false) {
   if (!dados || (Array.isArray(dados) && dados.length === 0)) return "";
   const isAlert = chave === "alertas";
@@ -95,18 +118,96 @@ function bindAccordions() {
   });
 }
 
+function carregarHistorico() {
+  try {
+    return JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+  } catch {
+    return [];
+  }
+}
+
+function salvarNoHistorico(item) {
+  const historico = carregarHistorico();
+  historico.unshift(item);
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(historico.slice(0, 10)));
+}
+
+function renderHistorico() {
+  const historico = carregarHistorico();
+  historyPanel.classList.remove("hidden");
+
+  if (!historico.length) {
+    historyList.innerHTML = `<div class="history-item"><strong>Nenhum roteiro salvo ainda.</strong><small>Gere um roteiro e toque em Salvar.</small></div>`;
+    historyPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+    return;
+  }
+
+  historyList.innerHTML = historico.map((item, index) => {
+    const origem = item.dados?.origem || "Origem";
+    const destino = item.dados?.destino || "Destino";
+    const data = item.dados?.data || "sem data";
+    const salvo = item.salvoEm ? new Date(item.salvoEm).toLocaleString("pt-BR") : "salvo recentemente";
+    return `
+      <div class="history-item">
+        <strong>${escapeHtml(origem)} → ${escapeHtml(destino)}</strong>
+        <small>${escapeHtml(data)} • ${escapeHtml(salvo)}</small>
+        <div class="history-actions">
+          <button type="button" data-history-open="${index}">Abrir</button>
+          <button type="button" class="ghost-button" data-history-copy="${index}">Copiar</button>
+          <button type="button" class="ghost-button" data-history-remove="${index}">Apagar</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  historyList.querySelectorAll("[data-history-open]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const item = carregarHistorico()[Number(button.dataset.historyOpen)];
+      if (item) renderPlano(item.plano, item.modo, item.dados);
+    });
+  });
+
+  historyList.querySelectorAll("[data-history-copy]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const item = carregarHistorico()[Number(button.dataset.historyCopy)];
+      if (!item) return;
+      await navigator.clipboard.writeText(planoParaTexto(item.plano));
+      showToast("Roteiro copiado!");
+    });
+  });
+
+  historyList.querySelectorAll("[data-history-remove]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const index = Number(button.dataset.historyRemove);
+      const historico = carregarHistorico().filter((_, i) => i !== index);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(historico));
+      renderHistorico();
+      showToast("Roteiro apagado.");
+    });
+  });
+
+  historyPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 function renderPlano(plano, modo, dados = {}) {
   result.classList.remove("hidden");
+  ultimoPlano = plano;
+  ultimosDados = dados;
+  ultimoModo = modo;
+
   const mapsUrl = abrirGoogleMaps(dados);
+  const whatsUrl = whatsappUrl(plano);
 
   result.innerHTML = `
     <div class="result-head">
       <h2>Seu plano de viagem está pronto ✨</h2>
       <p>${escapeHtml(plano.resumo || "A copilota montou uma sugestão inicial para sua viagem.")}</p>
       <div class="result-actions">
-        <button type="button" id="copyPlanBtn">📋 Copiar roteiro</button>
+        <button type="button" id="copyPlanBtn">📋 Copiar</button>
         <button type="button" id="savePlanBtn" class="ghost-button">💾 Salvar</button>
-        <a class="ghost-link secondary" href="${mapsUrl}" target="_blank" rel="noopener">🗺️ Abrir rota</a>
+        <button type="button" id="redoPlanBtn" class="ghost-button">🔁 Refazer</button>
+        <a class="ghost-link secondary" href="${mapsUrl}" target="_blank" rel="noopener">🗺️ Rota</a>
+        <a class="ghost-link secondary" href="${whatsUrl}" target="_blank" rel="noopener">📲 WhatsApp</a>
       </div>
       <small>${modo === "demo" ? "Modo demo ativo: conecte sua GEMINI_API_KEY para usar IA real." : "Gerado com IA."}</small>
     </div>
@@ -120,6 +221,7 @@ function renderPlano(plano, modo, dados = {}) {
     ${accordionCard("checklist", titulos.checklist, plano.checklist)}
     ${accordionCard("seguranca", titulos.seguranca, plano.seguranca)}
     ${accordionCard("alertas", titulos.alertas, plano.alertas, true)}
+    ${accordionCard("proximosPassos", titulos.proximosPassos, plano.proximosPassos, true)}
   `;
 
   bindAccordions();
@@ -130,8 +232,15 @@ function renderPlano(plano, modo, dados = {}) {
   });
 
   document.querySelector("#savePlanBtn")?.addEventListener("click", () => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ plano, modo, dados, salvoEm: new Date().toISOString() }));
-    showToast("Roteiro salvo no aparelho!");
+    const item = { plano, modo, dados, salvoEm: new Date().toISOString() };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(item));
+    salvarNoHistorico(item);
+    showToast("Roteiro salvo no histórico!");
+  });
+
+  document.querySelector("#redoPlanBtn")?.addEventListener("click", () => {
+    if (!ultimosDados) return;
+    form.requestSubmit();
   });
 
   result.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -142,7 +251,7 @@ form.addEventListener("submit", async (event) => {
 
   const dados = getFormData();
   submitBtn.disabled = true;
-  submitBtn.innerHTML = '<span class="loading">Gerando roteiro V2</span>';
+  submitBtn.innerHTML = '<span class="loading">Gerando roteiro V3</span>';
 
   try {
     const response = await fetch("/api/planejar-viagem", {
@@ -169,7 +278,7 @@ form.addEventListener("submit", async (event) => {
     bindAccordions();
   } finally {
     submitBtn.disabled = false;
-    submitBtn.textContent = "✨ Gerar meu roteiro V2";
+    submitBtn.textContent = "✨ Gerar meu roteiro V3";
   }
 });
 
@@ -187,6 +296,12 @@ loadLastBtn.addEventListener("click", () => {
   } catch {
     showToast("Não consegui carregar o roteiro salvo.");
   }
+});
+
+showHistoryBtn.addEventListener("click", renderHistorico);
+
+document.querySelectorAll("[data-radar]").forEach((button) => {
+  button.addEventListener("click", () => buscaRadar(button.dataset.radar));
 });
 
 document.querySelectorAll(".quick-actions button").forEach((button) => {
