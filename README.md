@@ -4,17 +4,17 @@
 
 O Te Levo.AI é um PWA de planejamento de viagens com inteligência artificial. A ideia é funcionar como uma copilota inteligente para ajudar o usuário antes e durante a viagem.
 
-## Recursos da V1
+## Recursos da V2
 
 - Planejamento de viagem com IA
+- Respostas mais curtas e melhores para celular
+- Cards recolhíveis
+- Botão para copiar roteiro
+- Botão para salvar o último roteiro no aparelho
+- Botão para abrir rota no Google Maps
+- Estimativa simples de combustível e pedágio
 - Modo demo quando a chave da IA não estiver configurada
-- Sugestões de roteiro
-- Paradas inteligentes
-- Hospedagem
-- Alimentação
-- Combustível
-- Checklist
-- Dicas de segurança
+- Sugestões de roteiro, paradas, hospedagem, alimentação e segurança
 - Modo estrada com atalhos rápidos
 - PWA com manifest e service worker
 
@@ -69,9 +69,9 @@ GEMINI_API_KEY=sua_chave_gemini_aqui
 ## Próximas etapas
 
 - Localização do usuário
-- Integração com mapas
+- Integração com mapas e Places
 - Busca real de postos, hotéis, restaurantes e farmácias
-- Histórico de roteiros
+- Histórico completo de roteiros
 - Favoritos
 - Login
 - Versão Android
