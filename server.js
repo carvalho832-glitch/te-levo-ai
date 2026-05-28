@@ -3,7 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { GoogleGenAI } from "@google/genai";
 
-// Te Levo.AI - Backend V2
+// Te Levo.AI - Backend V3
 // Do roteiro à estrada, a IA vai com você.
 
 dotenv.config();
@@ -32,6 +32,12 @@ function moeda(valor) {
   }).format(valor || 0);
 }
 
+function normalizarExtras(extras) {
+  if (!extras) return [];
+  if (Array.isArray(extras)) return extras.filter(Boolean);
+  return [extras].filter(Boolean);
+}
+
 function calcularCustosBasicos(dados = {}) {
   const distanciaKm = numeroBR(dados.distanciaKm);
   const consumoKmL = numeroBR(dados.consumoKmL);
@@ -57,6 +63,7 @@ function calcularCustosBasicos(dados = {}) {
 
 function montarPromptViagem(dados) {
   const custos = calcularCustosBasicos(dados);
+  const extras = normalizarExtras(dados.extras);
   const custosTexto = custos
     ? `Estimativa calculada pelo app: ${custos.distanciaKm} km, ${custos.litros} litros, combustível ${moeda(custos.combustivel)}, pedágio ${moeda(custos.pedagio)}, total ${moeda(custos.total)}.`
     : "O usuário não informou dados suficientes para cálculo de combustível.";
@@ -75,6 +82,8 @@ Dados da viagem:
 - Estilo da viagem: ${dados.estilo || "equilibrada"}
 - Orçamento: ${dados.orcamento || "não informado"}
 - Preferências: ${dados.preferencias || "não informado"}
+- Preferências rápidas marcadas: ${extras.length ? extras.join(", ") : "nenhuma"}
+- Ajuste solicitado pelo usuário: ${dados.ajusteRoteiro || "nenhum"}
 - Observações: ${dados.observacoes || "nenhuma"}
 - Cálculo básico: ${custosTexto}
 
@@ -88,24 +97,30 @@ Responda em português do Brasil, em JSON válido, sem markdown, com esta estrut
   "alimentacao": ["máximo 3 itens curtos"],
   "combustivel": ["máximo 3 itens curtos"],
   "custosEstimados": ["máximo 4 itens curtos"],
-  "checklist": ["máximo 7 itens curtos"],
+  "checklist": ["máximo 8 itens curtos e adaptados ao perfil da viagem"],
   "seguranca": ["máximo 4 itens curtos"],
-  "alertas": ["máximo 3 avisos importantes"]
+  "alertas": ["máximo 3 avisos importantes"],
+  "proximosPassos": ["máximo 4 ações práticas"]
 }
 
 Regras obrigatórias:
 - Não invente nomes de hotéis, restaurantes, postos ou estabelecimentos específicos.
 - Sem integração com mapas em tempo real, recomende buscar opções bem avaliadas nas cidades ou regiões da rota.
+- Se o usuário marcar modo família, priorize pausas, banheiro, alimentação leve, chegada segura e criança confortável.
+- Se o usuário marcar modo economia, priorize combustível, pedágio, comida simples, hospedagem com bom custo-benefício e reserva de emergência.
+- Se o usuário pedir ajuste, refaça o plano obedecendo esse ajuste.
 - Seja objetivo. O usuário está no celular.
 - Sempre recomende confirmar horário, preço, disponibilidade e avaliações recentes antes de ir.
-- Priorize descanso, alimentação, segurança, economia e conforto.
 `;
 }
 
 function planoDemo(dados = {}) {
   const origem = dados.origem || "sua cidade";
   const destino = dados.destino || "seu destino";
+  const extras = normalizarExtras(dados.extras);
   const custos = calcularCustosBasicos(dados);
+  const familia = extras.some((item) => item.toLowerCase().includes("fam"));
+  const economia = extras.some((item) => item.toLowerCase().includes("econom"));
 
   const custosEstimados = custos
     ? [
@@ -121,27 +136,27 @@ function planoDemo(dados = {}) {
 
   return {
     resumo: `Viagem de ${origem} para ${destino}, com foco em conforto, segurança e paradas úteis pelo caminho.`,
-    melhorHorario: "Sair entre 5h30 e 7h costuma ajudar a pegar estrada mais tranquila e aproveitar melhor o dia.",
+    melhorHorario: familia ? "Sair cedo ajuda a evitar trânsito, calor e cansaço das crianças." : "Sair entre 5h30 e 7h costuma ajudar a pegar estrada mais tranquila.",
     roteiro: [
       "Conferir documentos, pneus, combustível e água antes de sair.",
-      "Fazer uma pausa após 1h30 a 2h de estrada.",
-      "Separar uma parada maior para refeição e descanso.",
+      familia ? "Programar paradas curtas a cada 1h30 ou 2h." : "Fazer uma pausa após 1h30 a 2h de estrada.",
+      economia ? "Levar lanches e água para reduzir gastos no caminho." : "Separar uma parada maior para refeição e descanso.",
       "Chegar com margem para check-in e descanso."
     ],
     paradasInteligentes: [
       "Posto movimentado com banheiro e conveniência.",
-      "Restaurante familiar ou lanchonete bem avaliada na rota.",
+      familia ? "Parada com banheiro limpo e espaço para criança esticar as pernas." : "Restaurante ou lanchonete bem avaliada na rota.",
       "Ponto seguro para descanso se bater sono.",
       "Farmácia ou mercado próximo ao destino."
     ],
     hospedagem: [
-      "Priorize hotel ou pousada com estacionamento e café da manhã.",
+      economia ? "Busque pousada simples com boa avaliação e estacionamento." : "Priorize hotel ou pousada com estacionamento e café da manhã.",
       "Confira avaliações recentes antes de reservar.",
       "Confirme check-in, cancelamento e localização."
     ],
     alimentacao: [
       "Leve água e lanches leves.",
-      "Evite refeição pesada antes de dirigir muito tempo.",
+      familia ? "Inclua frutas, bolacha simples e algo que a criança já aceite bem." : "Evite refeição pesada antes de dirigir muito tempo.",
       "Planeje uma parada principal para almoço ou jantar."
     ],
     combustivel: [
@@ -155,7 +170,7 @@ function planoDemo(dados = {}) {
       "CNH e documento do veículo",
       "Carregador de celular",
       "Água e lanches",
-      "Remédios de uso contínuo",
+      familia ? "Itens da criança e roupa extra" : "Remédios de uso contínuo",
       "Reserva da hospedagem",
       "Dinheiro/cartão para pedágio"
     ],
@@ -168,6 +183,12 @@ function planoDemo(dados = {}) {
     alertas: [
       "Confirme horários, preços e disponibilidade antes de sair.",
       "As sugestões são orientativas até integrarmos mapas em tempo real."
+    ],
+    proximosPassos: [
+      "Abrir a rota no Google Maps.",
+      "Pesquisar paradas no Radar de Paradas.",
+      "Salvar o roteiro no histórico.",
+      "Compartilhar o plano com quem vai viajar."
     ]
   };
 }
@@ -175,7 +196,7 @@ function planoDemo(dados = {}) {
 app.get("/api/status", (req, res) => {
   res.json({
     app: "Te Levo.AI",
-    versao: "2.0.0",
+    versao: "3.0.0",
     slogan: "Do roteiro à estrada, a IA vai com você.",
     iaAtiva: Boolean(ai)
   });
@@ -247,5 +268,5 @@ app.post("/api/modo-estrada", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Te Levo.AI V2 rodando na porta ${PORT}`);
+  console.log(`Te Levo.AI V3 rodando na porta ${PORT}`);
 });
