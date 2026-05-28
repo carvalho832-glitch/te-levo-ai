@@ -5,11 +5,12 @@ const roadResult = document.querySelector("#roadResult");
 const toast = document.querySelector("#toast");
 const loadLastBtn = document.querySelector("#loadLastBtn");
 const showHistoryBtn = document.querySelector("#showHistoryBtn");
+const bottomHistoryBtn = document.querySelector("#bottomHistoryBtn");
 const historyPanel = document.querySelector("#historyPanel");
 const historyList = document.querySelector("#historyList");
 
-const STORAGE_KEY = "teLevoAiUltimoRoteiroV3";
-const HISTORY_KEY = "teLevoAiHistoricoV3";
+const STORAGE_KEY = "teLevoAiUltimoRoteiroV31";
+const HISTORY_KEY = "teLevoAiHistoricoV31";
 
 let ultimoPlano = null;
 let ultimosDados = null;
@@ -189,6 +190,25 @@ function renderHistorico() {
   historyPanel.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
+function montarResumoDados(dados = {}, plano = {}) {
+  const origem = dados.origem || "Origem";
+  const destino = dados.destino || "Destino";
+  const data = dados.data || "Sem data";
+  const pessoas = dados.pessoas || "-";
+  const custo = Array.isArray(plano.custosEstimados)
+    ? plano.custosEstimados.find((item) => String(item).toLowerCase().includes("total")) || "Ver custos"
+    : "Ver custos";
+
+  return `
+    <div class="result-summary">
+      <div class="summary-chip"><small>Rota</small><strong>${escapeHtml(origem)} → ${escapeHtml(destino)}</strong></div>
+      <div class="summary-chip"><small>Data</small><strong>${escapeHtml(data)}</strong></div>
+      <div class="summary-chip"><small>Pessoas</small><strong>${escapeHtml(pessoas)}</strong></div>
+      <div class="summary-chip"><small>Custo</small><strong>${escapeHtml(custo)}</strong></div>
+    </div>
+  `;
+}
+
 function renderPlano(plano, modo, dados = {}) {
   result.classList.remove("hidden");
   ultimoPlano = plano;
@@ -200,8 +220,9 @@ function renderPlano(plano, modo, dados = {}) {
 
   result.innerHTML = `
     <div class="result-head">
-      <h2>Seu plano de viagem está pronto ✨</h2>
+      <h2>Plano pronto ✨</h2>
       <p>${escapeHtml(plano.resumo || "A copilota montou uma sugestão inicial para sua viagem.")}</p>
+      ${montarResumoDados(dados, plano)}
       <div class="result-actions">
         <button type="button" id="copyPlanBtn">📋 Copiar</button>
         <button type="button" id="savePlanBtn" class="ghost-button">💾 Salvar</button>
@@ -251,7 +272,7 @@ form.addEventListener("submit", async (event) => {
 
   const dados = getFormData();
   submitBtn.disabled = true;
-  submitBtn.innerHTML = '<span class="loading">Gerando roteiro V3</span>';
+  submitBtn.innerHTML = '<span class="loading">Gerando roteiro</span>';
 
   try {
     const response = await fetch("/api/planejar-viagem", {
@@ -278,7 +299,7 @@ form.addEventListener("submit", async (event) => {
     bindAccordions();
   } finally {
     submitBtn.disabled = false;
-    submitBtn.textContent = "✨ Gerar meu roteiro V3";
+    submitBtn.textContent = "✨ Gerar meu roteiro";
   }
 });
 
@@ -299,6 +320,7 @@ loadLastBtn.addEventListener("click", () => {
 });
 
 showHistoryBtn.addEventListener("click", renderHistorico);
+bottomHistoryBtn.addEventListener("click", renderHistorico);
 
 document.querySelectorAll("[data-radar]").forEach((button) => {
   button.addEventListener("click", () => buscaRadar(button.dataset.radar));
